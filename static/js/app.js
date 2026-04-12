@@ -146,15 +146,15 @@ function animateLoadingSteps() {
     steps.forEach((step, idx) => {
       const el = document.getElementById(step);
       if (el) {
-          if (idx < currentStep % steps.length) {
-              el.classList.add("completed");
-              el.classList.remove("active");
-          } else if (idx === currentStep % steps.length) {
-              el.classList.add("active");
-              el.classList.remove("completed");
-          } else {
-              el.classList.remove("active", "completed");
-          }
+        if (idx < currentStep % steps.length) {
+          el.classList.add("completed");
+          el.classList.remove("active");
+        } else if (idx === currentStep % steps.length) {
+          el.classList.add("active");
+          el.classList.remove("completed");
+        } else {
+          el.classList.remove("active", "completed");
+        }
       }
     });
     currentStep++;
@@ -225,13 +225,19 @@ function initAnalyzeForm() {
       }
       formData.append("url_input", urlInput);
     }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
 
-    submitBtn.disabled = true;
-    btnText.innerHTML = '<span class="loading-spinner"></span> Analyzing...';
-    setStatus(
-      "Analysis in progress... Extracting and analyzing content, please wait.",
-      "info",
-    );
+    if (btnText) {
+      btnText.innerHTML = '<span class="loading-spinner"></span> Analyzing...';
+    }
+    // submitBtn.disabled = true;
+    // btnText.innerHTML = '<span class="loading-spinner"></span> Analyzing...';
+    // setStatus(
+    //   "Analysis in progress... Extracting and analyzing content, please wait.",
+    //   "info",
+    // );
 
     showLoadingOverlay();
 
@@ -315,65 +321,65 @@ function displayResultsWithTabs(analysis) {
 
   const keywordsHtml = keywords.length
     ? keywords
-        .map((kw) => `<span class="keyword-badge">${escapeHtml(kw)}</span>`)
-        .join("")
+      .map((kw) => `<span class="keyword-badge">${escapeHtml(kw)}</span>`)
+      .join("")
     : '<span class="text-muted">No keywords extracted</span>';
 
   const methodologyHtml = methodology.length
     ? methodology
-        .map((m) => `<span class="keyword-badge">${escapeHtml(m)}</span>`)
-        .join("")
+      .map((m) => `<span class="keyword-badge">${escapeHtml(m)}</span>`)
+      .join("")
     : '<span class="text-muted">Methodology not detected</span>';
 
   const techHtml = technologies.length
     ? technologies
-        .map((t) => `<span class="keyword-badge">${escapeHtml(t)}</span>`)
-        .join("")
+      .map((t) => `<span class="keyword-badge">${escapeHtml(t)}</span>`)
+      .join("")
     : '<span class="text-muted">No specific technologies detected</span>';
 
   const linksHtml = links.slice(0, 15).length
     ? links
-        .slice(0, 15)
-        .map(
-          (link) =>
-            `<li><a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link)}</a></li>`,
-        )
-        .join("")
+      .slice(0, 15)
+      .map(
+        (link) =>
+          `<li><a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link)}</a></li>`,
+      )
+      .join("")
     : '<li class="text-muted">No links found</li>';
 
   const refsHtml = refs.length
     ? refs
-        .slice(0, 20)
-        .map(
-          (ref) => `
+      .slice(0, 20)
+      .map(
+        (ref) => `
             <div class="reference-item">
                 <div class="reference-title">${escapeHtml(ref)}</div>
             </div>
         `,
-        )
-        .join("")
+      )
+      .join("")
     : '<p class="text-muted">No references found</p>';
 
   const authorsHtml = authors.length
     ? authors
-        .map((a) => `<span class="keyword-badge">${escapeHtml(a)}</span>`)
-        .join(" ")
+      .map((a) => `<span class="keyword-badge">${escapeHtml(a)}</span>`)
+      .join(" ")
     : '<span class="text-muted">Authors not detected</span>';
 
   const datasetsHtml = dsn.length
     ? dsn
-        .map((n) => `<span class="keyword-badge">${escapeHtml(n)}</span>`)
-        .join("")
+      .map((n) => `<span class="keyword-badge">${escapeHtml(n)}</span>`)
+      .join("")
     : '<span class="text-muted">No datasets mentioned</span>';
 
   const datasetLinksHtml = dsl.length
     ? dsl
-        .slice(0, 10)
-        .map(
-          (link) =>
-            `<li><a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link)}</a></li>`,
-        )
-        .join("")
+      .slice(0, 10)
+      .map(
+        (link) =>
+          `<li><a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link)}</a></li>`,
+      )
+      .join("")
     : '<li class="text-muted">No dataset links found</li>';
 
   const noticeBlock = analysis.notice
@@ -402,24 +408,23 @@ function displayResultsWithTabs(analysis) {
                 <div class="plagiarism-bar-fill ${plagClass}" style="width: ${plagScore}%"></div>
             </div>
             <p class="text-muted small mb-0">${escapeHtml(plagNote)}</p>
-            ${
-              plag.matches && plag.matches.length
-                ? `
+            ${plag.matches && plag.matches.length
+      ? `
                 <div class="mt-3">
                     <small class="text-secondary fw-bold">Similar Documents:</small>
                     <ul class="link-list mt-2 small">
                         ${plag.matches
-                          .slice(0, 5)
-                          .map(
-                            (m) =>
-                              `<li>${escapeHtml(m.title)} — ${m.similarity_percent}% match</li>`,
-                          )
-                          .join("")}
+        .slice(0, 5)
+        .map(
+          (m) =>
+            `<li>${escapeHtml(m.title)} — ${m.similarity_percent}% match</li>`,
+        )
+        .join("")}
                     </ul>
                 </div>
             `
-                : ""
-            }
+      : ""
+    }
         </div>
     `;
 
@@ -446,16 +451,15 @@ function displayResultsWithTabs(analysis) {
                             <i class="far fa-calendar"></i>
                             ${analysis.created_at}
                         </span>
-                        ${
-                          analysis.publication_year
-                            ? `
+                        ${analysis.publication_year
+      ? `
                             <span>
                                 <i class="far fa-clock"></i>
                                 ${analysis.publication_year}
                             </span>
                         `
-                            : ""
-                        }
+      : ""
+    }
                     </div>
                 </div>
                 <div class="result-actions">
@@ -521,9 +525,8 @@ function displayResultsWithTabs(analysis) {
             <div class="tab-contents">
                 <!-- Overview Tab -->
                 <div class="result-content active" id="tab-overview">
-                    ${
-                      authors.length
-                        ? `
+                    ${authors.length
+      ? `
                     <div class="mb-3">
                         <h5 class="section-title">
                             <i class="fas fa-users"></i> Authors
@@ -531,12 +534,11 @@ function displayResultsWithTabs(analysis) {
                         <div class="keyword-container">${authorsHtml}</div>
                     </div>
                     `
-                        : ""
-                    }
+      : ""
+    }
                     
-                    ${
-                      analysis.goal
-                        ? `
+                    ${analysis.goal
+      ? `
                     <div class="mb-3">
                         <h5 class="section-title">
                             <i class="fas fa-bullseye"></i> Main Purpose / Goal
@@ -544,12 +546,11 @@ function displayResultsWithTabs(analysis) {
                         <p class="section-content">${escapeHtml(analysis.goal)}</p>
                     </div>
                     `
-                        : ""
-                    }
+      : ""
+    }
                     
-                    ${
-                      analysis.impact
-                        ? `
+                    ${analysis.impact
+      ? `
                     <div class="mb-3">
                         <h5 class="section-title">
                             <i class="fas fa-star"></i> Impact
@@ -557,8 +558,8 @@ function displayResultsWithTabs(analysis) {
                         <p class="section-content">${escapeHtml(analysis.impact)}</p>
                     </div>
                     `
-                        : ""
-                    }
+      : ""
+    }
                     
                     <div class="row g-2">
                         <div class="col-6 col-md-3">
@@ -593,15 +594,14 @@ function displayResultsWithTabs(analysis) {
                     <h5 class="section-title">
                         <i class="fas fa-file-alt"></i> Abstract
                     </h5>
-                    ${
-                      analysis.abstract
-                        ? `
+                    ${analysis.abstract
+      ? `
                     <div class="section-content" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); border-left: 3px solid var(--primary);">
                         ${escapeHtml(analysis.abstract)}
                     </div>
                     `
-                        : '<span class="text-muted">Abstract not found in document</span>'
-                    }
+      : '<span class="text-muted">Abstract not found in document</span>'
+    }
                 </div>
                 
                 <!-- Summary Tab -->
@@ -609,15 +609,14 @@ function displayResultsWithTabs(analysis) {
                     <h5 class="section-title">
                         <i class="fas fa-list"></i> Summary
                     </h5>
-                    ${
-                      analysis.summary
-                        ? `
+                    ${analysis.summary
+      ? `
                     <div class="section-content" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); border-left: 3px solid var(--success);">
                         ${escapeHtml(analysis.summary)}
                     </div>
                     `
-                        : '<span class="text-muted">Summary could not be generated</span>'
-                    }
+      : '<span class="text-muted">Summary could not be generated</span>'
+    }
                 </div>
                 
                 <!-- Methodology Tab -->
@@ -626,16 +625,15 @@ function displayResultsWithTabs(analysis) {
                         <i class="fas fa-cogs"></i> Methodology
                     </h5>
                     <div class="keyword-container mb-2">${methodologyHtml}</div>
-                    ${
-                      methSummary
-                        ? `
+                    ${methSummary
+      ? `
                     <h6 class="text-secondary mb-2" style="font-size: 0.85rem;">Methodology Details:</h6>
                     <div class="section-content" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); border-left: 3px solid var(--secondary);">
                         ${escapeHtml(methSummary)}
                     </div>
                     `
-                        : ""
-                    }
+      : ""
+    }
                 </div>
                 
                 <!-- Dataset Tab -->
@@ -653,9 +651,8 @@ function displayResultsWithTabs(analysis) {
                             ${dsl.length ? `<ul class="link-list">${datasetLinksHtml}</ul>` : '<p class="text-muted">No dataset links found</p>'}
                         </div>
                     </div>
-                    ${
-                      datasetSection
-                        ? `
+                    ${datasetSection
+      ? `
                     <div class="mt-3">
                         <h6 class="text-secondary mb-2" style="font-size: 0.85rem;">Dataset Section:</h6>
                         <div class="section-content" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); border-left: 3px solid var(--accent); max-height: 300px; overflow-y: auto;">
@@ -663,8 +660,8 @@ function displayResultsWithTabs(analysis) {
                         </div>
                     </div>
                     `
-                        : ""
-                    }
+      : ""
+    }
                 </div>
                 
                 <!-- Results Tab -->
@@ -672,9 +669,8 @@ function displayResultsWithTabs(analysis) {
                     <h5 class="section-title">
                         <i class="fas fa-chart-line"></i> Results & Findings
                     </h5>
-                    ${
-                      analysis.impact
-                        ? `
+                    ${analysis.impact
+      ? `
                     <div class="mb-3">
                         <h6 class="text-secondary mb-2" style="font-size: 0.85rem;">Key Findings:</h6>
                         <div class="section-content" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); border-left: 3px solid var(--success);">
@@ -682,11 +678,10 @@ function displayResultsWithTabs(analysis) {
                         </div>
                     </div>
                     `
-                        : ""
-                    }
-                    ${
-                      hasVisualContent
-                        ? `
+      : ""
+    }
+                    ${hasVisualContent
+      ? `
                     <div class="visual-grid">
                         <div class="visual-card">
                             <i class="fas fa-image"></i>
@@ -705,8 +700,8 @@ function displayResultsWithTabs(analysis) {
                         </div>
                     </div>
                     `
-                        : '<p class="text-muted">No visual elements detected</p>'
-                    }
+      : '<p class="text-muted">No visual elements detected</p>'
+    }
                 </div>
                 
                 <!-- Conclusion Tab -->
@@ -714,15 +709,14 @@ function displayResultsWithTabs(analysis) {
                     <h5 class="section-title">
                         <i class="fas fa-flag-checkered"></i> Conclusion
                     </h5>
-                    ${
-                      conclusion
-                        ? `
+                    ${conclusion
+      ? `
                     <div class="section-content" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); border-left: 3px solid var(--accent);">
                         ${escapeHtml(conclusion)}
                     </div>
                     `
-                        : '<span class="text-muted">Conclusion section not found in document</span>'
-                    }
+      : '<span class="text-muted">Conclusion section not found in document</span>'
+    }
                 </div>
                 
                 <!-- Keywords Tab -->
@@ -755,28 +749,27 @@ function displayResultsWithTabs(analysis) {
                             <div class="plagiarism-bar-fill ${plagClass}" style="width: ${plagScore}%"></div>
                         </div>
                         <p class="text-muted mb-0">${escapeHtml(plagNote)}</p>
-                        ${
-                          plag.matches && plag.matches.length
-                            ? `
+                        ${plag.matches && plag.matches.length
+      ? `
                             <div class="mt-3">
                                 <h6 class="text-secondary mb-2" style="font-size: 0.85rem;">Similar Documents:</h6>
                                 <div class="reference-list">
                                     ${plag.matches
-                                      .slice(0, 10)
-                                      .map(
-                                        (m) => `
+        .slice(0, 10)
+        .map(
+          (m) => `
                                         <div class="reference-item">
                                             <div class="reference-title">${escapeHtml(m.title)}</div>
                                             <div class="reference-authors">${m.similarity_percent}% match</div>
                                         </div>
                                     `,
-                                      )
-                                      .join("")}
+        )
+        .join("")}
                                 </div>
                             </div>
                         `
-                            : '<p class="text-muted mt-2">No similar documents found in your library.</p>'
-                        }
+      : '<p class="text-muted mt-2">No similar documents found in your library.</p>'
+    }
                     </div>
                 </div>
                 
@@ -785,9 +778,8 @@ function displayResultsWithTabs(analysis) {
                     <h5 class="section-title">
                         <i class="fas fa-images"></i> Visual Elements
                     </h5>
-                    ${
-                      hasVisualContent
-                        ? `
+                    ${hasVisualContent
+      ? `
                     <div class="visual-grid">
                         <div class="visual-card">
                             <i class="fas fa-image"></i>
@@ -805,30 +797,28 @@ function displayResultsWithTabs(analysis) {
                             <div class="label">Charts & Plots</div>
                         </div>
                     </div>
-                    ${
-                      vis.pdf_embedded_image_objects !== undefined &&
-                      vis.pdf_embedded_image_objects > 0
-                        ? `
+                    ${vis.pdf_embedded_image_objects !== undefined &&
+        vis.pdf_embedded_image_objects > 0
+        ? `
                     <div class="mt-3 p-2" style="background: var(--bg-secondary); border-radius: var(--radius); border-left: 3px solid var(--primary);">
                         <small class="text-muted">
                             <strong>Note:</strong> The PDF contains approximately ${vis.pdf_embedded_image_objects} embedded image objects.
                         </small>
                     </div>
                     `
-                        : ""
-                    }
+        : ""
+      }
                     `
-                        : `
+      : `
                     <div class="empty-state" style="padding: 2rem;">
                         <i class="fas fa-chart-bar" style="font-size: 2rem;"></i>
                         <p class="text-muted mt-2">No visual elements detected in this document</p>
                     </div>
                     `
-                    }
+    }
                     
-                    ${
-                      extractedImages.length
-                        ? `
+                    ${extractedImages.length
+      ? `
                     <div class="mt-4">
                         <h6 class="section-title">
                             <i class="fas fa-images"></i> Extracted Images (${extractedImages.length})
@@ -836,8 +826,8 @@ function displayResultsWithTabs(analysis) {
                         <p class="text-muted small mb-2">Click on an image to view full size</p>
                         <div class="row g-2">
                             ${extractedImages
-                              .map(
-                                (img) => `
+        .map(
+          (img) => `
                                 <div class="col-6 col-md-4 col-lg-3">
                                     <div class="extracted-image-card" style="border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: var(--transition);" onclick="window.open('${escapeHtml(img.url)}', '_blank')" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-color)'">
                                         <img src="${escapeHtml(img.url)}" alt="Extracted from page ${img.page}" style="width: 100%; height: 150px; object-fit: cover; display: block;" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f1f5f9%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2212%22>Image</text></svg>'">
@@ -847,13 +837,13 @@ function displayResultsWithTabs(analysis) {
                                     </div>
                                 </div>
                             `,
-                              )
-                              .join("")}
+        )
+        .join("")}
                         </div>
                     </div>
                     `
-                        : ""
-                    }
+      : ""
+    }
                 </div>
                 
                 <!-- References Tab -->
@@ -998,7 +988,7 @@ function showDeleteConfirmation(documentId, btnElement) {
 
         // Parse JSON response to check success
         const data = await response.json();
-        
+
         if (data.success) {
           showToast("Document deleted successfully", "success");
           const card = btnElement.closest(".library-card");

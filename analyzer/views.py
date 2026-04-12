@@ -425,25 +425,47 @@ def profile(request):
     return render(request, 'analyzer/profile.html')
 
 
+# @login_required
+# def dashboard(request):
+#     documents = Document.objects.filter(user=user)
+#     total_papers = documents.count()
+#     """Dashboard page"""
+
+#     print("USER:", request.user)
+#     print("DOC COUNT:", Document.objects.filter(user=request.user).count())
+#     print("ALL DOCS:", Document.objects.count())
+
+#     from django.utils import timezone
+#     from django.db.models import Count, Avg, Sum
+#     from datetime  import timedelta
+    
+#     user = request.user
+    
+#     # Total papers
+#     total_papers = Document.objects.filter(user=user).count()
+    
+
+
 @login_required
 def dashboard(request):
-    documents = Document.objects.filter(user=user)
-    total_papers = documents.count()
     """Dashboard page"""
 
-    print("USER:", request.user)
-    print("DOC COUNT:", Document.objects.filter(user=request.user).count())
+    user = request.user  # ✅ define FIRST
+
+    print("USER:", user)
+    print("DOC COUNT:", Document.objects.filter(user=user).count())
     print("ALL DOCS:", Document.objects.count())
 
-    from django.utils import timezone
-    from django.db.models import Count, Avg, Sum
-    from datetime import timedelta
-    
-    user = request.user
-    
+    # Get user documents
+    documents = Document.objects.filter(user=user)
+
     # Total papers
-    total_papers = Document.objects.filter(user=user).count()
-    
+    total_papers = documents.count()
+
+    return render(request, "dashboard.html", {
+        "documents": documents,
+        "total_papers": total_papers,
+    })
     # Recent activity for sidebar
     recent_activity = Document.objects.filter(user=user).order_by('-created_at')[:5]
     documents = Document.objects.filter(user=user)

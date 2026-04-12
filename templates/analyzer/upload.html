@@ -9,15 +9,18 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     margin-bottom: 2rem;
     text-align: center;
   }
+
   .upload-header h1 {
     font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
   }
+
   .upload-header p {
     opacity: 0.9;
     margin: 0;
   }
+
   .method-tabs {
     display: flex;
     gap: 0.5rem;
@@ -25,6 +28,7 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 0.5rem;
   }
+
   .method-tab {
     padding: 0.75rem 1.5rem;
     border: none;
@@ -38,13 +42,16 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     align-items: center;
     gap: 0.5rem;
   }
+
   .method-tab.active {
     color: var(--primary);
     background: rgba(99, 102, 241, 0.1);
   }
+
   .method-tab:hover {
     color: var(--primary);
   }
+
   .upload-zone {
     border: 3px dashed var(--border-color);
     border-radius: 12px;
@@ -54,24 +61,29 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     transition: all 0.3s;
     background: var(--bg-secondary);
   }
+
   .upload-zone:hover {
     border-color: var(--primary);
     background: rgba(99, 102, 241, 0.05);
   }
+
   .upload-zone i {
     font-size: 3rem;
     color: var(--primary);
     margin-bottom: 1rem;
     display: block;
   }
+
   .upload-zone h5 {
     margin-bottom: 0.5rem;
     font-weight: 600;
   }
+
   .upload-zone p {
     color: var(--text-secondary);
     margin-bottom: 0;
   }
+
   .file-selected {
     display: none;
     margin-top: 1rem;
@@ -81,28 +93,33 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     color: var(--success);
     font-weight: 500;
   }
+
   .form-message {
     display: none;
     margin-top: 1rem;
     padding: 1rem;
     border-radius: 8px;
   }
+
   .form-message.success {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
     border-left: 4px solid var(--success);
   }
+
   .form-message.error {
     background: rgba(239, 68, 68, 0.1);
     color: #dc2626;
     border-left: 4px solid #dc2626;
   }
+
   .info-card {
     background: var(--bg-secondary);
     border-radius: 12px;
     padding: 1.5rem;
     margin-top: 1.5rem;
   }
+
   .info-card h6 {
     font-weight: 600;
     margin-bottom: 1rem;
@@ -110,25 +127,30 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     align-items: center;
     gap: 0.5rem;
   }
+
   .info-card ul {
     margin: 0;
     padding-left: 1.25rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
   }
+
   .info-card li {
     margin-bottom: 0.5rem;
   }
+
   .four-boxes-container {
     text-align: center;
     padding: 2rem 1rem;
   }
+
   .four-boxes {
     display: flex;
     justify-content: center;
     gap: 1rem;
     flex-wrap: wrap;
   }
+
   .four-boxes .box {
     width: 100px;
     height: 100px;
@@ -143,51 +165,61 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
     transition: all 0.3s ease;
     opacity: 0.5;
   }
+
   .four-boxes .box i {
     font-size: 1.75rem;
     color: var(--text-muted);
   }
+
   .four-boxes .box span {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-muted);
   }
+
   .four-boxes .box.active {
     opacity: 1;
     border-color: var(--primary);
-    background: linear-gradient(
-      135deg,
-      rgba(99, 102, 241, 0.1),
-      rgba(236, 72, 153, 0.1)
-    );
+    background: linear-gradient(135deg,
+        rgba(99, 102, 241, 0.1),
+        rgba(236, 72, 153, 0.1));
     transform: scale(1.05);
   }
+
   .four-boxes .box.active i {
     color: var(--primary);
   }
+
   .four-boxes .box.active span {
     color: var(--primary);
   }
+
   .four-boxes .box.completed {
     opacity: 1;
     border-color: #22c55e;
     background: rgba(34, 197, 94, 0.1);
   }
+
   .four-boxes .box.completed i {
     color: #22c55e;
   }
+
   .four-boxes .box.completed span {
     color: #22c55e;
   }
+
   @keyframes pulse-box {
+
     0%,
     100% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.05);
     }
   }
+
   .four-boxes .box.active {
     animation: pulse-box 1s ease-in-out infinite;
   }
@@ -203,10 +235,7 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
   <div class="row">
     <div class="col-lg-8 mx-auto">
       <!-- Upload Card -->
-      <div
-        class="card"
-        style="border-radius: 16px; border: 1px solid var(--border-color)"
-      >
+      <div class="card" style="border-radius: 16px; border: 1px solid var(--border-color)">
         <div class="card-body p-4">
           <form id="analyzeForm" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -216,12 +245,8 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
 
             <!-- Method Tabs -->
             <div class="method-tabs" style="justify-content: center; border-bottom: none; margin-bottom: 1rem;">
-              <button
-                type="button"
-                class="method-tab active"
-                data-method="pdf"
-                style="pointer-events: none; padding: 1rem 2rem; border-radius: 8px; background: rgba(99, 102, 241, 0.1);"
-              >
+              <button type="button" class="method-tab active" data-method="pdf"
+                style="pointer-events: none; padding: 1rem 2rem; border-radius: 8px; background: rgba(99, 102, 241, 0.1);">
                 <i class="fas fa-file-pdf"></i> Upload PDF Only
               </button>
             </div>
@@ -233,25 +258,11 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
                 <h5>Drag and drop your PDF</h5>
                 <p>or click to browse (max 45MB)</p>
               </div>
-              <input
-                type="file"
-                id="pdfFile"
-                name="pdf_file"
-                accept=".pdf"
-                style="display: none"
-              />
-              <div
-                class="file-selected"
-                id="fileSelected"
-                style="display: none"
-              >
+              <input type="file" id="pdfFile" name="pdf_file" accept=".pdf" style="display: none" />
+              <div class="file-selected" id="fileSelected" style="display: none">
                 <i class="fas fa-check-circle me-2"></i>
                 <span id="fileName"></span>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger ms-2"
-                  onclick="removeFile()"
-                >
+                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeFile()">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
@@ -260,45 +271,28 @@ Paper - PaperAIzer{% endblock %} {% block extra_css %}
             <!-- Method specific zones removed -->
 
             <!-- Error Message Display -->
-            <div
-              id="errorMessage"
-              class="form-message error"
-              style="display: none"
-            >
+            <div id="errorMessage" class="form-message error" style="display: none">
               <!-- Error content inserted by JS -->
             </div>
 
             <!-- Success Message Display -->
-            <div
-              id="successMessage"
-              class="form-message success"
-              style="
+            <div id="successMessage" class="form-message success" style="
                 display: none;
                 justify-content: space-between;
                 align-items: center;
-              "
-            >
+              ">
               <!-- Success content inserted by JS -->
             </div>
 
             <!-- Submit Button -->
             <div class="text-center mt-4">
-              <button
-                type="submit"
-                class="btn btn-primary-custom"
-                id="submitBtn"
-                style="min-width: 200px"
-              >
+              <button type="submit" class="btn btn-primary-custom" id="analyzeBtn" style="min-width: 200px">
                 <i class="fas fa-magic me-2"></i>Analyze Paper
               </button>
             </div>
 
             <!-- Four Boxes Animation -->
-            <div
-              id="fourBoxesAnimation"
-              class="four-boxes-container"
-              style="display: none; margin-top: 2rem"
-            >
+            <div id="fourBoxesAnimation" class="four-boxes-container" style="display: none; margin-top: 2rem">
               <div class="four-boxes">
                 <div class="box box-1">
                   <i class="fas fa-file-import"></i>
