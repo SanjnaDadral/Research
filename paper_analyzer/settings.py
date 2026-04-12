@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production-12345')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["research-8.onrender.com"]
 
