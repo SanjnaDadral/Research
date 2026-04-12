@@ -30,3 +30,6 @@ dj-database-url>=2.0.0
 
 # Reporting
 reportlab>=4.0.0
+
+#groq
+groq>=0.4.0
