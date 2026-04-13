@@ -9,23 +9,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production-12345')
 
-DEBUG = True
+# ✅ FIXED: use env
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "research-9.onrender.com"
-]
+ALLOWED_HOSTS = ["research-10.onrender.com"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://research-9.onrender.com"
+    "https://research-10.onrender.com"
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# ✅ FIXED: single definition
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True') == 'True'
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -87,18 +86,21 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# ✅ STATIC
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = 'media/'
+# ✅ FIXED MEDIA
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Groq API Configuration
+# Groq API
 GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
 
+# REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -113,6 +115,7 @@ REST_FRAMEWORK = {
     }
 }
 
+# EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
@@ -121,66 +124,42 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@paperyzer.ai')
 
-# Create logs directory if it doesn't exist
+# LOGGING
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True, parents=True)
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
+        'console': {'class': 'logging.StreamHandler'},
         'file': {
             'class': 'logging.FileHandler',
             'filename': LOGS_DIR / 'app.log',
-            'formatter': 'verbose',
         },
     },
     'root': {
         'handlers': ['console', 'file'],
         'level': 'INFO',
     },
-    'loggers': {
-        'analyzer': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
 }
 
-# WhiteNoise Configuration
+# WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY' 
+X_FRAME_OPTIONS = 'DENY'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 86400  # 1 day
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 86400
 
-SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
+# ✅ FIXED: Upload size (IMPORTANT)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
 
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-
-# Authentication settings
+# Authentication
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 AUTHENTICATION_BACKENDS = ['analyzer.backends.EmailOrUsernameModelBackend']
-
-# Simple password requirements
-# AUTH_PASSWORD_VALIDATORS = []
