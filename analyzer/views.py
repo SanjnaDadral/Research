@@ -279,7 +279,8 @@ def analyze_document(request):
             result = pdf_processor.extract_text(uploaded_file)
             if not result.get('success'):
                 return JsonResponse({'error': 'PDF extraction failed'}, status=400)
-            content = result.get('text', '')[:ANALYSIS_TEXT_MAX]
+            # content = result.get('text', '')[:ANALYSIS_TEXT_MAX]
+            content = result.get('content', '')[:ANALYSIS_TEXT_MAX]
             document_input_type = 'pdf'
             
             # Extract images from PDF for the visual assets
@@ -297,27 +298,60 @@ def analyze_document(request):
                 return JsonResponse({'error': 'No text content provided'}, status=400)
             document_input_type = 'text'
 
+        # elif input_type == 'url':
+        #     extracted_images_data = []
+        #     url_input = request.POST.get('url_input', '').strip()
+        #     if not url_input:
+        #         return JsonResponse({'error': 'No URL provided'}, status=400)
+        #     try:
+        #         result = url_scraper.scrape(url_input)
+        #         if not result.get('success'):
+        #             return JsonResponse({'error': f'Failed to fetch URL: {result.get("error", "Unknown error")}'}, status=400)
+        #         content = result.get('text', '')[:ANALYSIS_TEXT_MAX]
+        #         url_source = url_input
+        #         document_input_type = 'url'
+        #     except Exception as e:
+        #         logger.error(f"URL scraping error: {e}")
+        #         return JsonResponse({'error': f'Failed to fetch URL content: {str(e)}'}, status=400)
+        # else:
+        #     return JsonResponse({'error': 'Invalid input type'}, status=400)
+
+        # if not content or len(content.strip()) < 50:
+        #     return JsonResponse({'error': 'Not enough text content for analysis'}, status=400)
+
+
+
+
         elif input_type == 'url':
             extracted_images_data = []
             url_input = request.POST.get('url_input', '').strip()
+
             if not url_input:
                 return JsonResponse({'error': 'No URL provided'}, status=400)
+
             try:
                 result = url_scraper.scrape(url_input)
+
                 if not result.get('success'):
-                    return JsonResponse({'error': f'Failed to fetch URL: {result.get("error", "Unknown error")}'}, status=400)
-                content = result.get('text', '')[:ANALYSIS_TEXT_MAX]
+                    return JsonResponse({
+                        'error': f'Failed to fetch URL: {result.get("error", "Unknown error")}'
+                    }, status=400)
+
+                # ✅ FIXED LINE
+                content = result.get('content', '')[:ANALYSIS_TEXT_MAX]
+
                 url_source = url_input
                 document_input_type = 'url'
+
             except Exception as e:
                 logger.error(f"URL scraping error: {e}")
-                return JsonResponse({'error': f'Failed to fetch URL content: {str(e)}'}, status=400)
-        else:
-            return JsonResponse({'error': 'Invalid input type'}, status=400)
+                return JsonResponse({
+                    'error': f'Failed to fetch URL content: {str(e)}'
+                }, status=400)
 
+        # keep this as it is
         if not content or len(content.strip()) < 50:
             return JsonResponse({'error': 'Not enough text content for analysis'}, status=400)
-
         # EXTRACT TITLE
         lines = content.split('\n')
         for line in lines:
@@ -425,47 +459,25 @@ def profile(request):
     return render(request, 'analyzer/profile.html')
 
 
-# @login_required
-# def dashboard(request):
-#     documents = Document.objects.filter(user=user)
-#     total_papers = documents.count()
-#     """Dashboard page"""
-
-#     print("USER:", request.user)
-#     print("DOC COUNT:", Document.objects.filter(user=request.user).count())
-#     print("ALL DOCS:", Document.objects.count())
-
-#     from django.utils import timezone
-#     from django.db.models import Count, Avg, Sum
-#     from datetime  import timedelta
-    
-#     user = request.user
-    
-#     # Total papers
-#     total_papers = Document.objects.filter(user=user).count()
-    
-
-
 @login_required
 def dashboard(request):
+    ocuments = Document.objects.filter(user=user)
+    total_papers = documents.count()
     """Dashboard page"""
 
-    user = request.user  # ✅ define FIRST
-
-    print("USER:", user)
-    print("DOC COUNT:", Document.objects.filter(user=user).count())
+    print("USER:", request.user)
+    print("DOC COUNT:", Document.objects.filter(user=request.user).count())
     print("ALL DOCS:", Document.objects.count())
 
-    # Get user documents
-    documents = Document.objects.filter(user=user)
-
+    from django.utils import timezone
+    from django.db.models import Count, Avg, Sum
+    from datetime  import timedelta
+    
+    user = request.user
+    
     # Total papers
-    total_papers = documents.count()
-
-    return render(request, "dashboard.html", {
-        "documents": documents,
-        "total_papers": total_papers,
-    })
+    total_papers = Document.objects.filter(user=user).count()
+    
     # Recent activity for sidebar
     recent_activity = Document.objects.filter(user=user).order_by('-created_at')[:5]
     documents = Document.objects.filter(user=user)
