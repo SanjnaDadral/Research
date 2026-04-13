@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv(
     'django-insecure-dev-key-change-this'
 )
 
-DEBUG = False  # ALWAYS FALSE on Render
+DEBUG = False # ALWAYS FALSE on Render
 
 ALLOWED_HOSTS = [
     'research-13.onrender.com',
