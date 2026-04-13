@@ -10,15 +10,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production-12345')
 
 # ✅ FIXED: use env
-DEBUG = False
-ALLOWED_HOSTS = [
-    'research-12.onrender.com',
-    'localhost',
-    '127.0.0.1'
-]
 # DEBUG = False
-
-# ALLOWED_HOSTS = ["research-13.onrender.com"]
+# ALLOWED_HOSTS = [
+#     'research-12.onrender.com',
+#     'localhost',
+#     '127.0.0.1'
+# ]
+ALLOWED_HOSTS = ["research-13.onrender.com"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://research-13.onrender.com"
