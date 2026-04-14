@@ -180,10 +180,10 @@ def login_view(request):
 
     if request.method == 'POST' and form.is_valid():
         login(request, form.get_user())
-        return redirect('dashboard')
+        next_url = request.POST.get('next') or request.GET.get('next')
+        return redirect(next_url if next_url else 'dashboard')  # ✅ respects ?next=
 
     return render(request, 'analyzer/login.html', {'form': form})
-
 # =========================
 # REGISTER
 # =========================
