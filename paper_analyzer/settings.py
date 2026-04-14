@@ -154,6 +154,19 @@ if not GROQ_API_KEY:
         "Please add it in Render Dashboard → Environment Variables."
     )
 
+# Email settings validation (optional but recommended)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    # Only warn in development, fail in production
+    if not DEBUG:
+        raise ImproperlyConfigured(
+            "EMAIL_HOST_USER and EMAIL_HOST_PASSWORD must be set in production!"
+        )
+    else:
+        print("⚠️  Warning: Email credentials not set. Email features will not work.")
+
 # ======================
 # REST FRAMEWORK
 # ======================
@@ -181,7 +194,6 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@paperyzer.ai')
-
 # ======================
 # LOGGING
 # ======================
