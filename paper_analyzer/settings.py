@@ -18,13 +18,13 @@ SECRET_KEY = os.getenv(
 DEBUG = False # ALWAYS FALSE on Render
 
 ALLOWED_HOSTS = [
-    'Research-paper.onrender.com',
+    'Research.onrender.com',
     'localhost',
     '127.0.0.1'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://Research-paper.onrender.com"
+    "https://Research.onrender.com"
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
