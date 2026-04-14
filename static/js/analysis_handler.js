@@ -251,6 +251,7 @@ class AnalysisHandler {
     }
     return true;
   }
+
   async submitAnalysis(formData) {
     this.isProcessing = true;
     this.disableForm();
@@ -273,14 +274,11 @@ class AnalysisHandler {
         method: "POST",
         body: formData,
         credentials: "same-origin",
-        headers: {
-          "X-CSRFToken": this.getCsrfToken(),
-          "X-Requested-With": "XMLHttpRequest",
-        },
+        // 🔥 IMPORTANT: Remove CSRF header when using FormData + file upload
+        // Django will still accept it because we have @csrf_exempt
       });
 
       let data;
-
       try {
         data = await response.json();
       } catch (e) {
@@ -292,29 +290,92 @@ class AnalysisHandler {
       clearInterval(simulationInterval);
 
       if (!response.ok || !data.success) {
-        this.showError(data.error || "Analysis failed");
+        this.showError(data.error || "Analysis failed. Please try again.");
         return;
       }
 
-      // complete animation
-      this.updateFourBoxes(3);
+      // Success
       this.updateFourBoxes(4);
-
       this.showSuccess(data);
 
       setTimeout(() => {
         window.location.href = data.redirect_url;
-      }, 1000);
-
+      }, 800);
     } catch (error) {
       clearInterval(simulationInterval);
       console.error("Analysis error:", error);
-      this.showError(`Network error: ${error.message}`);
+      this.showError(
+        `Network error: ${error.message || "Please check your connection"}`,
+      );
     } finally {
       this.isProcessing = false;
       this.enableForm();
     }
   }
+  // async submitAnalysis(formData) {
+  //   this.isProcessing = true;
+  //   this.disableForm();
+  //   this.showFourBoxesAnimation();
+
+  //   let currentStep = 1;
+  //   this.updateFourBoxes(currentStep);
+
+  //   const simulationInterval = setInterval(() => {
+  //     if (currentStep < 3) {
+  //       currentStep++;
+  //       this.updateFourBoxes(currentStep);
+  //     } else {
+  //       clearInterval(simulationInterval);
+  //     }
+  //   }, 4500);
+
+  //   try {
+  //     const response = await fetch("/analyze/", {
+  //       method: "POST",
+  //       body: formData,
+  //       credentials: "same-origin",
+  //       headers: {
+  //         "X-CSRFToken": this.getCsrfToken(),
+  //         "X-Requested-With": "XMLHttpRequest",
+  //       },
+  //     });
+
+  //     let data;
+
+  //     try {
+  //       data = await response.json();
+  //     } catch (e) {
+  //       clearInterval(simulationInterval);
+  //       this.showError("Server returned invalid response");
+  //       return;
+  //     }
+
+  //     clearInterval(simulationInterval);
+
+  //     if (!response.ok || !data.success) {
+  //       this.showError(data.error || "Analysis failed");
+  //       return;
+  //     }
+
+  //     // complete animation
+  //     this.updateFourBoxes(3);
+  //     this.updateFourBoxes(4);
+
+  //     this.showSuccess(data);
+
+  //     setTimeout(() => {
+  //       window.location.href = data.redirect_url;
+  //     }, 1000);
+
+  //   } catch (error) {
+  //     clearInterval(simulationInterval);
+  //     console.error("Analysis error:", error);
+  //     this.showError(`Network error: ${error.message}`);
+  //   } finally {
+  //     this.isProcessing = false;
+  //     this.enableForm();
+  //   }
+  // }
   // async submitAnalysis(formData) {
   //   this.isProcessing = true;
   //   this.disableForm();
@@ -351,7 +412,6 @@ class AnalysisHandler {
   //   //     this.showError(data.error || "Analysis failed");
   //   //     return;
   //   //   }
-
 
   //     // Fill to complete immediately on success
   //     this.updateFourBoxes(3);

@@ -282,8 +282,10 @@ def logout_view(request):
 #         logger.error(e, exc_info=True)
 #         return JsonResponse({'error': str(e)}, status=500)
 
-
+@csrf_exempt
 def analyze_document(request):
+    """Main document analysis endpoint - Handles PDF and URL input"""
+    
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Login required'}, status=401)
 
@@ -293,16 +295,15 @@ def analyze_document(request):
         title = "Analyzed Document"
         document_input_type = 'pdf'
         url_source = None
-        extracted_images_data = []
 
         # =========================
-        # 📄 PDF INPUT
+        # 📄 PDF UPLOAD
         # =========================
         if input_type == 'pdf':
             uploaded_file = request.FILES.get('pdf_file')
 
             if not uploaded_file:
-                return JsonResponse({'error': 'No PDF uploaded'}, status=400)
+                return JsonResponse({'error': 'No PDF file uploaded'}, status=400)
 
             is_valid, error = validate_pdf_file(uploaded_file)
             if not is_valid:
@@ -312,13 +313,9 @@ def analyze_document(request):
             result = processor.extract_text(uploaded_file)
 
             if not result.get('success'):
-                return JsonResponse({'error': 'PDF extraction failed'}, status=400)
+                return JsonResponse({'error': 'Failed to extract text from PDF'}, status=400)
 
             content = result.get('text', '')[:ANALYSIS_TEXT_MAX]
-            document_input_type = 'pdf'
-
-            # ❌ FIX: extract_images not available → skip safely
-            extracted_images_data = []
 
         # =========================
         # 🌐 URL INPUT
@@ -331,37 +328,32 @@ def analyze_document(request):
 
             try:
                 result = url_scraper.scrape(url_input)
-
                 if not result.get('success'):
                     return JsonResponse({
-                        'error': f'Failed to fetch URL: {result.get("error", "Unknown error")}'
+                        'error': f'Failed to scrape URL: {result.get("error", "Unknown error")}'
                     }, status=400)
 
-                # ✅ FIXED KEY
                 content = result.get('text', '')[:ANALYSIS_TEXT_MAX]
-
                 url_source = url_input
                 document_input_type = 'url'
 
             except Exception as e:
                 logger.error(f"URL scraping error: {e}")
-                return JsonResponse({
-                    'error': f'Failed to fetch URL content: {str(e)}'
-                }, status=400)
+                return JsonResponse({'error': f'URL processing failed: {str(e)}'}, status=400)
 
         else:
             return JsonResponse({'error': 'Invalid input type'}, status=400)
 
         # =========================
-        # 📏 VALIDATION
+        # VALIDATION
         # =========================
         if not content or len(content.strip()) < 30:
             return JsonResponse({
-                'error': 'Not enough text content for analysis (min 30 chars)'
+                'error': 'Not enough content extracted from the document (minimum 30 characters)'
             }, status=400)
 
         # =========================
-        # 🏷 TITLE
+        # GENERATE TITLE
         # =========================
         for line in content.split('\n'):
             line = line.strip()
@@ -369,12 +361,12 @@ def analyze_document(request):
                 title = line[:150]
                 break
 
-        if not title or title == "Analyzed Document":
+        if title == "Analyzed Document":
             words = content.split()
-            title = ' '.join(words[:10]) if words else "Analyzed Document"
+            title = ' '.join(words[:12]) if words else "Analyzed Document"
 
         # =========================
-        # 💾 SAVE DOCUMENT
+        # SAVE DOCUMENT
         # =========================
         document = Document.objects.create(
             user=request.user,
@@ -386,16 +378,16 @@ def analyze_document(request):
         )
 
         # =========================
-        # 🤖 AI ANALYSIS
+        # AI ANALYSIS USING GROQ
         # =========================
         try:
             analysis_data = analyze_text_with_groq(content)
         except Exception as e:
-            logger.warning(f"Groq failed → fallback ML: {e}")
+            logger.warning(f"Groq analysis failed, using fallback: {e}")
             analysis_data = ml_processor.full_analysis(content)
 
         # =========================
-        # 🔍 PLAGIARISM
+        # PLAGIARISM CHECK
         # =========================
         plagiarism = local_library_similarity(document.id, content, user=request.user)
 
@@ -405,62 +397,42 @@ def analyze_document(request):
         )
 
         # =========================
-        # 📊 EXTRACTIONS
-        # =========================
-        extracted_links = getattr(ml_processor, 'extract_links', lambda x: [])(content)
-        references = getattr(ml_processor, 'extract_references', lambda x: [])(content)
-
-        keywords_detected = analysis_data.get('keywords', [])
-        methodology_detected = analysis_data.get('methodology', [])
-        technologies_detected = analysis_data.get('technologies', [])
-
-        try:
-            datasets = getattr(ml_processor, 'extract_datasets', lambda x: {})(content)
-            dataset_names = datasets.get('names', []) or analysis_data.get('datasets', [])
-            dataset_links = datasets.get('links', [])
-        except:
-            dataset_names, dataset_links = [], []
-
-        extras = {
-            'plagiarism': plagiarism,
-            'research_gaps': analysis_data.get('research_gaps', []),
-            'visual_assets': getattr(ml_processor, 'extract_visuals', lambda x: {})(content),
-            'methodology_summary': analysis_data.get('summary', '')[:500],
-            'conclusion': analysis_data.get('conclusion', ''),
-            'extracted_images': extracted_images_data,
-        }
-
-        # =========================
-        # 💾 SAVE ANALYSIS
+        # SAVE ANALYSIS RESULT
         # =========================
         analysis = AnalysisResult.objects.create(
             document=document,
             summary=analysis_data.get('summary', ''),
             abstract=analysis_data.get('abstract', ''),
-            keywords=keywords_detected,
-            methodology=methodology_detected,
-            technologies=technologies_detected,
+            keywords=analysis_data.get('keywords', []),
+            methodology=analysis_data.get('methodology', []),
+            technologies=analysis_data.get('technologies', []),
             goal=analysis_data.get('goal', ''),
             impact=analysis_data.get('impact', ''),
             publication_year=analysis_data.get('publication_year', ''),
             authors=analysis_data.get('authors', []),
             word_count=analysis_data.get('statistics', {}).get('word_count', 0),
             unique_words=analysis_data.get('statistics', {}).get('unique_words', 0),
-            extracted_links=extracted_links,
-            references=references,
-            dataset_names=dataset_names,
-            dataset_links=dataset_links,
-            extras=extras,
+            extracted_links=getattr(ml_processor, 'extract_links', lambda x: [])(content),
+            references=getattr(ml_processor, 'extract_references', lambda x: [])(content),
+            extras={
+                'plagiarism': plagiarism,
+                'research_gaps': analysis_data.get('research_gaps', []),
+                'conclusion': analysis_data.get('conclusion', ''),
+            }
         )
 
         return JsonResponse({
             'success': True,
+            'message': 'Analysis completed successfully',
             'redirect_url': f'/result/{document.id}/'
         })
 
     except Exception as e:
-        logger.error(e, exc_info=True)
-        return JsonResponse({'error': str(e)}, status=500)
+        logger.error(f"Analyze document error: {e}", exc_info=True)
+        return JsonResponse({
+            'error': 'An unexpected error occurred during analysis. Please try again.'
+        }, status=500)
+
 
 # =========================
 # 📊 STUB FUNCTIONS (TODO)
@@ -608,26 +580,36 @@ def contact(request):
 def forgot_password(request):
     """Forgot password page - Send OTP"""
     from .otp_utils import create_and_send_otp
-    
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
-        
-        # Check if user exists
+
+        if not email:
+            messages.error(request, 'Please enter your email address.')
+            return redirect('forgot_password')
+
         try:
             User.objects.get(email=email)
-            # Create and send OTP
-            _, email_sent = create_and_send_otp(email)
             
+            # Send OTP with better error handling
+            success, email_sent = create_and_send_otp(email)
+
             if email_sent:
                 request.session['reset_email'] = email
-                messages.success(request, f'OTP sent to {email}. Please check your inbox.')
+                messages.success(request, f'OTP sent successfully to {email}. Please check your inbox.')
                 return redirect('verify_otp')
             else:
-                messages.error(request, 'Failed to send OTP because of an email server error. Please try again.')
+                messages.error(request, 'Could not send OTP. Please try again later or contact support.')
+                return redirect('forgot_password')
+
         except User.DoesNotExist:
-            messages.error(request, 'Error: No account found with this email address.')
+            messages.error(request, 'No account found with this email address.')
             return redirect('forgot_password')
-    
+        except Exception as e:
+            logger.error(f"Forgot password error: {e}", exc_info=True)
+            messages.error(request, 'An error occurred while sending OTP. Please try again.')
+            return redirect('forgot_password')
+
     return render(request, 'analyzer/forgot_password.html')
 
 
