@@ -18,13 +18,13 @@ SECRET_KEY = os.getenv(
 DEBUG = False # ALWAYS FALSE on Render
 
 ALLOWED_HOSTS = [
-    'research-13.onrender.com',
+    'research-14.onrender.com',
     'localhost',
     '127.0.0.1'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://research-13.onrender.com"
+    "https://research-14.onrender.com"
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -90,11 +90,10 @@ WSGI_APPLICATION = 'paper_analyzer.wsgi.application'
 # ======================
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
         conn_max_age=600
     )
 }
-
 # ======================
 # AUTH
 # ======================
