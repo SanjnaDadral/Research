@@ -936,6 +936,14 @@ class MLProcessor:
         if text and len(text) > max_chars:
             text = text[:max_chars]
        
+        # Safe extraction with fallback for 'impact'
+        impact_value = ""
+        try:
+            impact_value = self.extract_impact(text)
+        except Exception as e:
+            logger.warning(f"extract_impact failed: {e}")
+            impact_value = "Impact analysis could not be generated."
+
         return {
             'title': self.extract_title(text),
             'authors': self.extract_authors(text),
@@ -949,7 +957,7 @@ class MLProcessor:
             'methodology_summary': self.extract_methodology_summary(text),
             'technologies': self.detect_technologies(text),
             'goal': self.extract_goal(text),
-            'impact': self.extract_impact(text),
+            'impact': impact_value,                    # ← Fixed here
             'research_gaps': self.detect_research_gaps(text),
             'dataset_names': self.extract_datasets(text).get('names', []),
             'dataset_links': self.extract_datasets(text).get('links', []),
@@ -958,7 +966,5 @@ class MLProcessor:
             'references': self.extract_references(text),
             'statistics': self.calculate_statistics(text),
         }
-
-
 # Global instance
 ml_processor = MLProcessor()

@@ -301,10 +301,10 @@ def logout_view(request):
 #         logger.error(e, exc_info=True)
 #         return JsonResponse({'error': str(e)}, status=500)
 
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt
 from django.core.files.uploadedfile import UploadedFile
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def analyze_document(request):
@@ -412,14 +412,52 @@ def analyze_document(request):
         )
 
         # =========================
-        # AI ANALYSIS
+               # =========================
+        # AI ANALYSIS (Fixed - No more crash)
         # =========================
         try:
             analysis_data = analyze_text_with_groq(content)
+            logger.info("✅ Groq analysis completed successfully")
         except Exception as e:
-            logger.warning(f"Groq analysis failed, falling back to ML processor: {e}")
-            analysis_data = ml_processor.full_analysis(content)
+            logger.warning(f"Groq failed: {e}")
+            try:
+                analysis_data = ml_processor.full_analysis(content)
+                logger.info("✅ Used fallback ML analysis")
+            except Exception as fallback_e:
+                logger.error(f"Fallback ML also failed: {fallback_e}")
+                # Safe default values
+                analysis_data = {
+                    'summary': 'Analysis could not be completed due to technical issues.',
+                    'abstract': '',
+                    'keywords': [],
+                    'methodology': [],
+                    'technologies': [],
+                    'goal': '',
+                    'impact': '',
+                    'publication_year': '',
+                    'authors': [],
+                    'statistics': {'word_count': len(content.split()), 'unique_words': 0},
+                    'research_gaps': [],
+                    'conclusion': ''
+                }
 
+        # Extra safety check (very important)
+        if isinstance(analysis_data, str):
+            logger.warning("Fallback returned string instead of dictionary")
+            analysis_data = {
+                'summary': str(analysis_data)[:1000],
+                'abstract': '',
+                'keywords': [],
+                'methodology': [],
+                'technologies': [],
+                'goal': '',
+                'impact': '',
+                'publication_year': '',
+                'authors': [],
+                'statistics': {'word_count': len(content.split()), 'unique_words': 0},
+                'research_gaps': [],
+                'conclusion': ''
+            }
         # =========================
         # PLAGIARISM CHECK
         # =========================
