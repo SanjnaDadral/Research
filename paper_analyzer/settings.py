@@ -47,7 +47,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # WhiteNoise for production (recommended for Render)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # ======================
 # MEDIA FILES
@@ -59,8 +60,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # FILE UPLOAD LIMITS
 # ======================
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52 * 1024 * 1024   # 52 MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52 * 1024 * 1024
-
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 52 * 1024 * 1024
+# settings.py
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 # ======================
 # APPS
 # ======================
